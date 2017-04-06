@@ -101,11 +101,13 @@ test() ->
   % first request to allocate. Should be allocated the frequency 10.
   {reply, {ok, 10}} = test_allocate(),
 
+  % then request to deallocate. Should return an ok
   {reply, ok} = test_deallocate(10),
 
   stop_server().
 
 
+% function to test a allocate and wait for response
 test_allocate() ->
   frequency_assignment ! {request, self(), allocate},
   receive
@@ -113,6 +115,7 @@ test_allocate() ->
       Any
   end.
 
+% function to test a deallocate and wait for response
 test_deallocate(Freq) ->
   frequency_assignment ! {request, self(), {deallocate, Freq}},
   receive
@@ -120,6 +123,7 @@ test_deallocate(Freq) ->
       Any
   end.
 
+% Stop the server and unregister frequency_assignment
 stop_server() ->
   frequency_assignment ! {request, self(), stop},
   unregister(frequency_assignment),
