@@ -1,5 +1,5 @@
 -module(palin).
--export([palin/1, nopunct/1, palindrome/1, palindrome_check/1]).
+-export([palin/1, nopunct/1, palindrome/1, palindrome_check/1, server/1]).
 
 % palindrome problem
 %
@@ -63,19 +63,18 @@ palindrome_check(String) ->
   lists:reverse(Normalise) == Normalise.
 
 
+%Custom functions
+
+build_result({true, S}) ->
+  {result, string:concat(S, " is a palindrome")};
+build_result({_, S}) ->
+  {result, string:concat(S, " is NOT a palindrome")}.
+
 server(Pid) ->
   receive
-    {check, Msg} ->        %Check for a palindrome.
-      Pid ! {result,
-        lists:flatten(
-          io_lib:format(
-            "\"~s\"~sa palindrome.",
-            [Msg,
-              case (palindrome_check(Msg)) of
-                true -> " is ";
-                false -> " is not "
-              end]))},
+    {check, S} ->
+      Pid ! build_result({palindrome_check(S), S}),
       server(Pid);
-    _ ->          %Stop for ANY other message.
-      ok
+    _ ->
+      io:format("stopped~n")
   end.
